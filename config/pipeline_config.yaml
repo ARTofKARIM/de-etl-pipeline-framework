@@ -1,0 +1,35 @@
+pipeline:
+  name: "sample_etl_pipeline"
+  description: "ETL pipeline for processing sales data"
+
+source:
+  type: "csv"
+  path: "data/sales_raw.csv"
+  options:
+    encoding: "utf-8"
+    delimiter: ","
+
+transformations:
+  - name: "clean_nulls"
+    type: "DataCleaner"
+    params:
+      strategy: "drop"
+      subset: ["product_id", "amount"]
+  - name: "cast_types"
+    type: "TypeCaster"
+    params:
+      columns:
+        amount: "float64"
+        quantity: "int64"
+  - name: "filter_valid"
+    type: "FilterTransformer"
+    params:
+      column: "amount"
+      operator: ">"
+      value: 0
+
+target:
+  type: "csv"
+  path: "data/sales_cleaned.csv"
+  options:
+    index: false
